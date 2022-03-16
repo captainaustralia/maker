@@ -6,7 +6,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password=None, is_staff=False, is_admin=False, active=True):
+    def create_user(self, email, password=None, is_staff=False, is_admin=False, active=True): ####убрать пас=нон
         if not email:
             raise ValueError("Users must have an email address")
         if not password:
@@ -76,7 +76,7 @@ class User(AbstractBaseUser):
     """???"""
     """Also maybe need postpone about/first_name/last_name in profile"""
     """2 step register, 1 - email/pass/phone/city , 2 - profile info: firstname/lastname/about/avatar"""
-    about = models.TextField(
+    about = models.TextField( # маленькая длина
         max_length=200,
         blank=True
     )
@@ -86,7 +86,7 @@ class User(AbstractBaseUser):
     )
     """After registration, we will send a confirmation link to mail, after confirmation, the flag will be changed"""
 
-    active = models.BooleanField(default=True)
+    active = models.BooleanField(default=True)                  ################добавить is_
     """Flag that change when user want delete his account """
 
     admin = models.BooleanField(default=False)
