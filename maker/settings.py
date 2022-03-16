@@ -25,6 +25,8 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework_simplejwt',
     'djoser'
+    'phonenumber_field'  # phone number field for a model
+    'multiselectfield'  # for multiple choose in models
 
 ]
 
