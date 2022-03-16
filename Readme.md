@@ -7,3 +7,6 @@ now it's char fields.(Done !)
 - Connect djoser/simplejwt/djangorestframework
 - Write test router/serializer for user
 - Test auth with JWT
+----
+16.03.22
+- Create Company model
