@@ -24,9 +24,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'rest_framework_simplejwt',
-    'djoser'
-    'phonenumber_field'  # phone number field for a model
-    'multiselectfield'  # for multiple choose in models
+    'djoser',
+    'phonenumber_field' , # phone number field for a model
+    'multiselectfield' , # for multiple choose in models
 
 ]
 
@@ -100,7 +100,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'core.User'
+AUTH_USER_MODEL = 'core.User' or 'core.Company'
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
