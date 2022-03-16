@@ -240,3 +240,6 @@ class Rating(models.Model):
     ]
     grade = models.IntegerField(choices=GRADES)
     company = models.ForeignKey(Company, on_delete=models.PROTECT)
+
+    def test(self):
+        pass
