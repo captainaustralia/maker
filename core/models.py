@@ -6,7 +6,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password=None, is_staff=False, is_admin=False, active=True):
+    def create_user(self, email, password, is_staff=False, is_admin=False, is_active=False):
         if not email:
             raise ValueError("Users must have an email address")
         if not password:
@@ -14,14 +14,14 @@ class UserManager(BaseUserManager):
         user_obj = self.model(
             email=self.normalize_email(email)
         )
-        user_obj.staff = is_staff
-        user_obj.admin = is_admin
-        user_obj.active = active
+        user_obj.is_staff = is_staff
+        user_obj.is_admin = is_admin
+        user_obj.is_active = is_active
         user_obj.set_password(password)
         user_obj.save()
         return user_obj
 
-    def create_staffuser(self, email, password=None):
+    def create_staffuser(self, email, password):
         user = self.create_user(
             email,
             password=password,
@@ -29,13 +29,13 @@ class UserManager(BaseUserManager):
         )
         return user
 
-    def create_superuser(self, email, password=None):
+    def create_superuser(self, email, password):
         user = self.create_user(
             email,
-
             password=password,
             is_staff=True,
-            is_admin=True
+            is_admin=True,
+            is_active=True
         )
         return user
 
@@ -86,13 +86,13 @@ class User(AbstractBaseUser):
     )
     """After registration, we will send a confirmation link to mail, after confirmation, the flag will be changed"""
 
-    active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     """Flag that change when user want delete his account """
 
-    admin = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)
     """Admin flag"""
 
-    staff = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     """A setting that says what will be the name identifier during authorization"""
@@ -113,14 +113,6 @@ class User(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return True
-
-    @property
-    def is_staff(self):
-        return self.staff
-
-    @property
-    def is_admin(self):
-        return self.admin
 
     class Meta:
         verbose_name = 'User'
