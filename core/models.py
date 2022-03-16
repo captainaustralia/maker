@@ -1,8 +1,12 @@
+import datetime
 import django.db.models.base
+import pycountry
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
+from multiselectfield import MultiSelectField
 from phonenumber_field.modelfields import PhoneNumberField
+from django.utils.timezone import now
 
 
 class UserManager(BaseUserManager):
@@ -117,3 +121,122 @@ class User(AbstractBaseUser):
     class Meta:
         verbose_name = 'User'
         verbose_name_plural = 'Users'
+
+
+class Company(models.Model):
+    name = models.CharField(
+        max_length=255
+    )
+    phone = PhoneNumberField(
+        unique=True,
+        blank=False
+    )
+    description = models.CharField(
+        max_length=1155,
+        blank=False
+    )
+    email = models.EmailField(
+        max_length=255,
+        blank=False
+    )
+
+    start_date = models.DateTimeField(default=now())
+    end_date = models.DateTimeField()  # not sure about format
+    ####################################################################################################################
+    # COUNTRIES = [(i.alpha_3, i.name) for i in list(pycountry.countries)]  # pycountry.
+    # ''' 1)fuzzy_search
+    #     2)subdivisions
+    #     3)currencies
+    #     4)languages
+    #     5)locales!!! zaebis
+    # '''
+    country = models.CharField(
+        max_length=255,
+        blank=False,
+    #   choices=COUNTRIES
+    )
+    state = models.CharField(
+        max_length=255,
+        blank=False,
+    )
+    city = models.CharField(
+        max_length=255,
+        blank=False,
+    )
+    street = models.CharField(
+        max_length=255,
+        blank=False,
+    )
+    ####################################################################################################################
+    WORK_DAYS = [
+        ('Sun', 'Sunday'),
+        ('Mon', 'Monday'),
+        ('Tue', 'Tuesday'),
+        ('Wed', 'Wednesday'),
+        ('Thu', 'Thursday'),
+        ('Fri', 'Friday'),
+        ('Sat', 'Saturday'),
+    ]
+    work_days = MultiSelectField(  # https://pypi.org/project/django-multiselectfield/ #### serializer friendly
+        blank=False,
+        choices=WORK_DAYS,
+        max_choices=7
+    )
+    work_time_start = models.TimeField(
+        blank=False
+    )
+    work_time_end = models.TimeField(
+        blank=False
+    )
+
+    #################################################################################
+
+    company_rating = models.DecimalField(
+        max_digits=2,
+        decimal_places=1
+    )
+    # вычисляемое поле
+    '''
+    #    select sum(g.grade) from rating r, grade g where
+    #    g.id = r.grade_id and
+    #    r.company_id = %this%.id
+    '''
+    #  типо того будет
+
+    website_url = models.URLField(
+        max_length=255
+    )
+
+    def __str__(self):
+        return self.name
+
+    def refresh_rating(self):
+        pass
+
+    class Meta:
+        verbose_name = 'Company'
+        verbose_name_plural = 'Companies'
+#     loyalty_program = models.ForeignKey
+#
+#
+# class LoyaltyProgram:
+#     name = models.CharField(
+#         max_length=255
+#     )
+#     description = models.CharField(
+#         max_length=565
+#     )
+#     start_date = models.DateTimeField(default=now())
+#     end_date = models.DateTimeField(default='01-01-2999 00:00:00')
+
+
+class Rating(models.Model):
+    GRADES = [
+        ('Awful', 1),
+        ('Bad', 2),
+        ('Satisfying', 3),
+        ('Good', 4),
+        ('Excellent', 5),
+    ]
+    grade = models.IntegerField(choices=GRADES)
+    company = models.ForeignKey(Company, on_delete=models.PROTECT)
