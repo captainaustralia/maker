@@ -243,6 +243,3 @@ class Rating(models.Model):
 
     def test(self):
         pass
-
-    def test(self):
-        pass
