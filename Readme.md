@@ -10,4 +10,6 @@ now it's char fields.(Done !)
 ----
 16.03.22(Sergo)
 - Create Company model
-- 
+----
+17.3.22(San)
+- Write normal models for AbstractUser + UserProfile/CompanyProfile

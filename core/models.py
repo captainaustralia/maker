@@ -20,7 +20,7 @@ class UserManager(BaseUserManager):
             raise (ValueError("Users must have a phone"))
         if not country:
             raise (ValueError("Users must have a country"))
-        if not country:
+        if not city:
             raise (ValueError("Users must have a city"))
         user_obj = self.model(
             email=self.normalize_email(email)
@@ -36,43 +36,37 @@ class UserManager(BaseUserManager):
         user_obj.save(using=self._db)
         return user_obj
 
-    def create_staffuser(self, email, password, phone, country, city):
-        user = self.create_user(
-            email,
-            phone,
-            country,
-            city,
-            password=password,
-            is_staff=True
-        )
-        return user
-
-    def create_superuser(self, email, password, phone, country, city):
+    def create_superuser(self, email, password, phone='', country='', city=''):
         user = self.create_user(
             email,
             password=password,
+            phone=phone,
+            country=country,
+            city=city,
             is_staff=True,
             is_admin=True,
             is_active=True,
         )
         return user
 
-    def create_company(self, email, password):
+    def create_company(self, email, password, phone='', country='', city=''):
         company = self.create_user(
             email,
             password=password,
+            phone=phone,
+            country=country,
+            city=city,
             is_company=True
         )
         return company
 
 
-class AbstractProjectUser(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(
         max_length=254,
         unique=True,
         blank=False
     )
-    """E-mail + pass -> auth fields"""
 
     phone = PhoneNumberField(
         blank=False
@@ -88,25 +82,22 @@ class AbstractProjectUser(AbstractBaseUser, PermissionsMixin):
         max_length=255,
         blank=False,
     )
-    is_active = models.BooleanField(default=True)
-    """Flag that change when user want delete his account """
+    is_active = models.BooleanField(default=False)
 
     is_admin = models.BooleanField(default=False)
-    """Admin flag"""
 
     is_staff = models.BooleanField(default=False)
+
+    is_company = models.BooleanField(default=False)
 
     objects = UserManager()
 
     USERNAME_FIELD = "email"
-
-    class Meta:
-        verbose_name = "user"
-        verbose_name_plural = "users"
-        abstract = True
+    REQUIRED_FIELDS = ['phone', 'country', 'city']
 
     class Meta(AbstractUser.Meta):
-        swappable = "AUTH_USER_MODEL"
+        verbose_name = "user"
+        verbose_name_plural = "users"
 
     def __str__(self):
         return self.email
@@ -124,7 +115,14 @@ class AbstractProjectUser(AbstractBaseUser, PermissionsMixin):
         return True
 
 
-class User(AbstractProjectUser):
+class UserProfile(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.PROTECT,
+        null=True,
+        default=''
+    )
+
     first_name = models.CharField(
         max_length=30,
         blank=False
@@ -139,18 +137,37 @@ class User(AbstractProjectUser):
         max_length=200,
         blank=True
     )
+    avatar = models.ImageField(upload_to='media/user_avatar')
 
 
-class Company(AbstractProjectUser):
+class CompanyProfile(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.PROTECT
+    )
+
     name = models.CharField(
-        max_length=255
+        max_length=255,
+        blank=False
     )
     description = models.CharField(
         max_length=1155,
         blank=False
     )
     start_date = models.DateTimeField(default=now())
+
     end_date = models.DateTimeField()  # not sure about format
+
+    country = models.CharField(
+        max_length=255,
+        blank=False,
+        #   choices=COUNTRIES
+    )
+
+    city = models.CharField(
+        max_length=255,
+        blank=False,
+    )
     state = models.CharField(
         max_length=255,
         blank=False,
@@ -199,8 +216,13 @@ class Company(AbstractProjectUser):
         max_length=255
     )
 
+    avatar = models.ImageField(upload_to='media/company_avatar')
+
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        self.objects.create_user(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Company'
@@ -230,7 +252,4 @@ class Rating(models.Model):
         ('Excellent', 5),
     ]
     grade = models.IntegerField(choices=GRADES)
-    company = models.ForeignKey(Company, on_delete=models.PROTECT)
-
-    def test(self):
-        pass
+    company = models.ForeignKey(User, on_delete=models.PROTECT)
