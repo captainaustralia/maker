@@ -8,5 +8,6 @@ now it's char fields.(Done !)
 - Write test router/serializer for user
 - Test auth with JWT
 ----
-16.03.22
+16.03.22(Sergo)
 - Create Company model
+- 
