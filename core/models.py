@@ -1,6 +1,3 @@
-import datetime
-import django.db.models.base
-import pycountry
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, AbstractUser
 from django.db import models
@@ -12,16 +9,6 @@ from django.utils.timezone import now
 class UserManager(BaseUserManager):
     def create_user(self, email, phone, country, city, password, is_staff=False, is_admin=False, is_active=False,
                     is_company=False):
-        if not email:
-            raise ValueError("Users must have an email address")
-        if not password:
-            raise ValueError("Users must have a password")
-        if not phone:
-            raise (ValueError("Users must have a phone"))
-        if not country:
-            raise (ValueError("Users must have a country"))
-        if not city:
-            raise (ValueError("Users must have a city"))
         user_obj = self.model(
             email=self.normalize_email(email)
         )
@@ -49,16 +36,16 @@ class UserManager(BaseUserManager):
         )
         return user
 
-    def create_company(self, email, password, phone='', country='', city=''):
-        company = self.create_user(
-            email,
-            password=password,
-            phone=phone,
-            country=country,
-            city=city,
-            is_company=True
-        )
-        return company
+    # def create_company(self, email, password, phone='', country='', city=''):
+    #     company = self.create_user(
+    #         email,
+    #         password=password,
+    #         phone=phone,
+    #         country=country,
+    #         city=city,
+    #         is_company=True
+    #     )
+    #     return company
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -68,20 +55,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=False
     )
 
-    phone = PhoneNumberField(
-        blank=False
+    username = models.CharField(
+        max_length=255,
+        editable=True,
+        unique=True
     )
 
-    country = models.CharField(
-        max_length=255,
-        blank=False,
-        #   choices=COUNTRIES
-    )
-
-    city = models.CharField(
-        max_length=255,
-        blank=False,
-    )
     is_active = models.BooleanField(default=False)
 
     is_admin = models.BooleanField(default=False)
@@ -95,12 +74,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ['phone', 'country', 'city']
 
-    class Meta(AbstractUser.Meta):
-        verbose_name = "user"
-        verbose_name_plural = "users"
+    class Meta:
+        verbose_name = "User"
+        verbose_name_plural = "Users"
 
     def __str__(self):
-        return self.email
+        return self.username
 
     def get_full_name(self):
         return self.email
@@ -115,68 +94,54 @@ class User(AbstractBaseUser, PermissionsMixin):
         return True
 
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(
-        User,
-        on_delete=models.PROTECT,
-        null=True,
-        default=''
-    )
-
-    first_name = models.CharField(
-        max_length=30,
-        blank=False
-    )
-
-    last_name = models.CharField(
-        max_length=30,
-        blank=False
-    )
-
-    about = models.TextField(
-        max_length=200,
-        blank=True
-    )
-    avatar = models.ImageField(upload_to='media/user_avatar')
+# class UserProfile(models.Model):
+#     user = models.OneToOneField(
+#         User,
+#         on_delete=models.PROTECT,
+#         null=True,
+#         default=''
+#     )
+#
+#     # about = models.TextField(
+#     #     max_length=200,
+#     #     blank=True
+#     # )
 
 
-class CompanyProfile(models.Model):
+class Company(models.Model):
     user = models.OneToOneField(
         User,
         on_delete=models.PROTECT
     )
-
+    avatar = models.ImageField(
+        upload_to='media/user_avatar'
+    )
     name = models.CharField(
         max_length=255,
-        blank=False
+        editable=True,
+        unique=True
     )
-    description = models.CharField(
-        max_length=1155,
-        blank=False
-    )
-    start_date = models.DateTimeField(default=now())
 
+    description = models.CharField(
+        max_length=1155
+    )
+
+    phone = PhoneNumberField()
+    start_date = models.DateTimeField(default=now())
     end_date = models.DateTimeField()  # not sure about format
 
     country = models.CharField(
-        max_length=255,
-        blank=False,
-        #   choices=COUNTRIES
+        max_length=255
     )
-
     city = models.CharField(
-        max_length=255,
-        blank=False,
+        max_length=255
     )
     state = models.CharField(
-        max_length=255,
-        blank=False,
+        max_length=255
     )
     street = models.CharField(
-        max_length=255,
-        blank=False,
+        max_length=255
     )
-    ####################################################################################################################
     WORK_DAYS = [
         ('Sun', 'Sunday'),
         ('Mon', 'Monday'),
@@ -186,7 +151,7 @@ class CompanyProfile(models.Model):
         ('Fri', 'Friday'),
         ('Sat', 'Saturday'),
     ]
-    work_days = MultiSelectField(  # https://pypi.org/project/django-multiselectfield/ #### serializer friendly
+    work_days = MultiSelectField(
         blank=False,
         choices=WORK_DAYS,
         max_choices=7
@@ -197,29 +162,19 @@ class CompanyProfile(models.Model):
     work_time_end = models.TimeField(
         blank=False
     )
-
-    #################################################################################
-
     company_rating = models.DecimalField(
         max_digits=2,
         decimal_places=1
     )
-    # вычисляемое поле
-    '''
-    #    select sum(g.grade) from rating r, grade g where
-    #    g.id = r.grade_id and
-    #    r.company_id = %this%.id
-    '''
-    #  типо того будет
-
     website_url = models.URLField(
         max_length=255
     )
 
-    avatar = models.ImageField(upload_to='media/company_avatar')
+    likes = models.IntegerField()
+    dislikes = models.IntegerField()
 
     def __str__(self):
-        return self.name
+        return self.user.name
 
     def save(self, *args, **kwargs):
         self.objects.create_user(*args, **kwargs)
@@ -229,27 +184,8 @@ class CompanyProfile(models.Model):
         verbose_name_plural = 'Companies'
 
 
-#     loyalty_program = models.ForeignKey
-#
-#
-# class LoyaltyProgram:
-#     name = models.CharField(
-#         max_length=255
-#     )
-#     description = models.CharField(
-#         max_length=565
-#     )
-#     start_date = models.DateTimeField(default=now())
-#     end_date = models.DateTimeField(default='01-01-2999 00:00:00')
+class Category(models.Model):
+    name = models.CharField(
+        max_length=255
+    )
 
-
-class Rating(models.Model):
-    GRADES = [
-        ('Awful', 1),
-        ('Bad', 2),
-        ('Satisfying', 3),
-        ('Good', 4),
-        ('Excellent', 5),
-    ]
-    grade = models.IntegerField(choices=GRADES)
-    company = models.ForeignKey(User, on_delete=models.PROTECT)
