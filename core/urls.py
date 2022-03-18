@@ -1,6 +1,6 @@
 from django.urls import include, path
 from rest_framework import routers
-from .views import UserViewSet
+from .views import UserViewSet, CompanyCreateAPIView, CompanyListAPIView
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -14,4 +14,6 @@ urlpatterns = [
     path('', include(router.urls)),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # get token
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # refresh token
+    path('company/', CompanyCreateAPIView.as_view()),
+    path('company_list/', CompanyListAPIView.as_view())
 ]

@@ -7,14 +7,12 @@ from django.utils.timezone import now
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, phone, country, city, password, is_staff=False, is_admin=False, is_active=False,
+    def create_user(self, email, password, username, is_staff=False, is_admin=False, is_active=False,
                     is_company=False):
         user_obj = self.model(
             email=self.normalize_email(email)
         )
-        user_obj.phone = phone
-        user_obj.country = country
-        user_obj.city = city
+        user_obj.username = username
         user_obj.is_staff = is_staff
         user_obj.is_admin = is_admin
         user_obj.is_active = is_active
@@ -23,13 +21,11 @@ class UserManager(BaseUserManager):
         user_obj.save(using=self._db)
         return user_obj
 
-    def create_superuser(self, email, password, phone='', country='', city=''):
+    def create_superuser(self, email, password, username):
         user = self.create_user(
             email,
+            username=username,
             password=password,
-            phone=phone,
-            country=country,
-            city=city,
             is_staff=True,
             is_admin=True,
             is_active=True,
@@ -72,7 +68,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ['phone', 'country', 'city']
+    REQUIRED_FIELDS = ['username']
 
     class Meta:
         verbose_name = "User"
@@ -107,14 +103,45 @@ class User(AbstractBaseUser, PermissionsMixin):
 #     #     blank=True
 #     # )
 
+class Category(models.Model):
+    name = models.CharField(
+        max_length=255
+    )
+
+    class Meta:
+        verbose_name = 'Category'
+        verbose_name_plural = 'Categories'
+
+    def str(self):
+        return self.name
+
 
 class Company(models.Model):
+    WORK_DAYS = [
+        ('Sun', 'Sunday'),
+        ('Mon', 'Monday'),
+        ('Tue', 'Tuesday'),
+        ('Wed', 'Wednesday'),
+        ('Thu', 'Thursday'),
+        ('Fri', 'Friday'),
+        ('Sat', 'Saturday'),
+    ]
+
     user = models.OneToOneField(
         User,
         on_delete=models.PROTECT
     )
+
+    category = models.ForeignKey(
+        Category,
+        blank=True,
+        null=True,
+        related_name='category',
+        on_delete=models.SET_NULL,
+    )
     avatar = models.ImageField(
-        upload_to='media/user_avatar'
+        upload_to='media/user_avatar',
+        blank=True
     )
     name = models.CharField(
         max_length=255,
@@ -127,8 +154,14 @@ class Company(models.Model):
     )
 
     phone = PhoneNumberField()
-    start_date = models.DateTimeField(default=now())
-    end_date = models.DateTimeField()  # not sure about format
+
+    start_date = models.DateTimeField(
+        default=now()
+    )
+
+    end_date = models.DateTimeField(
+        default='2023-12-12 23:59:59'
+    )  # not sure about format
 
     country = models.CharField(
         max_length=255
@@ -142,50 +175,43 @@ class Company(models.Model):
     street = models.CharField(
         max_length=255
     )
-    WORK_DAYS = [
-        ('Sun', 'Sunday'),
-        ('Mon', 'Monday'),
-        ('Tue', 'Tuesday'),
-        ('Wed', 'Wednesday'),
-        ('Thu', 'Thursday'),
-        ('Fri', 'Friday'),
-        ('Sat', 'Saturday'),
-    ]
+
     work_days = MultiSelectField(
-        blank=False,
+        blank=True,
         choices=WORK_DAYS,
         max_choices=7
     )
+
     work_time_start = models.TimeField(
-        blank=False
+        auto_now_add=True
     )
+
     work_time_end = models.TimeField(
-        blank=False
+        blank=True
     )
+
     company_rating = models.DecimalField(
         max_digits=2,
-        decimal_places=1
-    )
-    website_url = models.URLField(
-        max_length=255
+        decimal_places=1,
+        default=0
     )
 
-    likes = models.IntegerField()
-    dislikes = models.IntegerField()
+    website_url = models.URLField(
+        max_length=255,
+        blank=True
+    )
+
+    likes = models.IntegerField(
+        default=0
+    )
+
+    dislikes = models.IntegerField(
+        default=0
+    )
 
     def __str__(self):
-        return self.user.name
-
-    def save(self, *args, **kwargs):
-        self.objects.create_user(*args, **kwargs)
+        return self.user.username
 
     class Meta:
         verbose_name = 'Company'
         verbose_name_plural = 'Companies'
-
-
-class Category(models.Model):
-    name = models.CharField(
-        max_length=255
-    )
-
