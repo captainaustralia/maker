@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-from .models import CompanyProfile, Rating, User
+from .models import Company, User
 
-admin.site.register(CompanyProfile)
-admin.site.register(Rating)
+admin.site.register(Company)
 admin.site.register(User)
