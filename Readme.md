@@ -13,5 +13,6 @@ now it's char fields.(Done !)
 ----
 17.03.22(San)
 - Write normal models for AbstractUser + UserProfile/CompanyProfile
+----
 18.03.22(San)
 - Fix BaseModels, add SMTP , write Serializers for create Company, other fix
