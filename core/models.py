@@ -184,3 +184,8 @@ class Company(models.Model):
         verbose_name_plural = 'Companies'
 
 
+class Category(models.Model):
+    name = models.CharField(
+        max_length=255
+    )
+
