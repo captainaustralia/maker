@@ -112,7 +112,7 @@ class Category(models.Model):
         verbose_name = 'Category'
         verbose_name_plural = 'Categories'
 
-    def str(self):
+    def __str__(self):
         return self.name
 
 
@@ -153,7 +153,9 @@ class Company(models.Model):
         max_length=1155
     )
 
-    phone = PhoneNumberField()
+    phone = PhoneNumberField(
+        unique=True
+    )
 
     start_date = models.DateTimeField(
         default=now()
@@ -188,12 +190,6 @@ class Company(models.Model):
 
     work_time_end = models.TimeField(
         blank=True
-    )
-
-    company_rating = models.DecimalField(
-        max_digits=2,
-        decimal_places=1,
-        default=0
     )
 
     website_url = models.URLField(

@@ -1,9 +1,11 @@
 from datetime import timedelta
 from pathlib import Path
 
+import parametrs
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-k(xka6u-50uc0=g2ku90p)8b!oy+m^r1lxu&ay1&xzt4d%n)(s'
+SECRET_KEY = parametrs.SECRET_KEY
 
 DEBUG = True
 
@@ -24,7 +26,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'rest_framework_simplejwt',
-    'djoser'
+    'djoser',
+    'loadtest'
 
 ]
 
@@ -67,6 +70,15 @@ DATABASES = {
     }
 }
 
+# CACHES REDIS
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379',
+    }
+}
+
 # Password validation
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -103,12 +115,12 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = '587'
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = '##########'
-EMAIL_HOST_PASSWORD = '###########'
+EMAIL_HOST_USER = parametrs.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = parametrs.EMAIL_HOST_PASSWORD
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=10),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': False,
     'UPDATE_LAST_LOGIN': False,
@@ -146,10 +158,9 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {
-    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
-    'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
+    'PASSWORD_RESET_CONFIRM_URL': 'test/password/reset/confirm/{uid}/{token}',
+    'USERNAME_RESET_CONFIRM_URL': 'test/username/reset/confirm/{uid}/{token}',
     'ACTIVATION_URL': 'test/activation/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': True,
     'SERIALIZERS': {},
 }
-
