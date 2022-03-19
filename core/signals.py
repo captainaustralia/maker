@@ -9,3 +9,4 @@ from maker import settings
 @receiver(user_activated)
 def create_profile(sender, user, request, **kwargs):
     pass
+

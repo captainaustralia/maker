@@ -34,11 +34,25 @@ class CompanyCreateAPIView(APIView):
         data = request.data
         serializer = CompanySerializer(data=data)
         if serializer.is_valid() and str(serializer.validated_data.get('user')) == str(request.user.username):
-            print('GG')
             user = User.objects.get(username=request.user.username)
             serializer.save()
             user.is_company = True
             user.save()
             create_company = Signal()
+            create_company.send(sender=self.__class__, id=request.user.username)
             return Response(serializer.data, status=status.HTTP_201_CREATED)  # send 201
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # send 400
+
+
+class SelectedCategoryCompanies(APIView):
+    """
+    Selected Category Companies
+    """
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+    def get(self, request, category, day=''):
+        category = category.title()
+        queryset = Company.objects.filter(category__name=category)
+        print(queryset)
+        serializer = CompanySerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
