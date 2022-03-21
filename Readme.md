@@ -16,3 +16,6 @@ now it's char fields.(Done !)
 ----
 18.03.22(San)
 - Fix BaseModels, add SMTP , write Serializers for create Company, other fix
+----
+19.03.22-22.03.22(San)
+- Add Redis/Celery config/Fix models/other small fixes..
