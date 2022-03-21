@@ -118,13 +118,13 @@ class Category(models.Model):
 
 class Company(models.Model):
     WORK_DAYS = [
-        ('Sun', 'Sunday'),
-        ('Mon', 'Monday'),
-        ('Tue', 'Tuesday'),
-        ('Wed', 'Wednesday'),
-        ('Thu', 'Thursday'),
-        ('Fri', 'Friday'),
-        ('Sat', 'Saturday'),
+        ('1', 'Sunday'),
+        ('2', 'Monday'),
+        ('3', 'Tuesday'),
+        ('4', 'Wednesday'),
+        ('5', 'Thursday'),
+        ('6', 'Friday'),
+        ('7', 'Saturday'),
     ]
 
     user = models.OneToOneField(
@@ -158,7 +158,7 @@ class Company(models.Model):
     )
 
     start_date = models.DateTimeField(
-        default=now()
+        default=str(now())
     )
 
     end_date = models.DateTimeField(

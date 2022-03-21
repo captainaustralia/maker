@@ -1,6 +1,8 @@
 from datetime import timedelta
 from pathlib import Path
 
+import django.middleware.cache
+
 import parametrs
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,11 +29,17 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework_simplejwt',
     'djoser',
-    'loadtest'
+    # 'loadtest'
 
 ]
 
+# This is counter-intuitive, but correct: ``UpdateCacheMiddleware`` needs to run
+# last during the response phase, which processes middleware bottom-up;
+# ``FetchFromCacheMiddleware`` needs to run last during the request phase, which
+# processes middleware top-down.
+
 MIDDLEWARE = [
+    # 'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -39,6 +47,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'django.middleware.cache.FetchFromCacheMiddleware'
 ]
 
 ROOT_URLCONF = 'maker.urls'
@@ -118,6 +127,8 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = parametrs.EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = parametrs.EMAIL_HOST_PASSWORD
 
+#  JWT SETTINGS
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
@@ -150,6 +161,8 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
+#  DRF SETTINGS
+
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -157,10 +170,22 @@ REST_FRAMEWORK = {
     )
 }
 
+#  DJOSER SETTINGS
+
 DJOSER = {
     'PASSWORD_RESET_CONFIRM_URL': 'test/password/reset/confirm/{uid}/{token}',
     'USERNAME_RESET_CONFIRM_URL': 'test/username/reset/confirm/{uid}/{token}',
-    'ACTIVATION_URL': 'test/activation/{uid}/{token}',
+    'ACTIVATION_URL': 'test/users/activation/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': True,
     'SERIALIZERS': {},
 }
+
+#  CELERY SETTINGS
+
+REDIS_HOST = '127.0.0.1'
+REDIS_PORT = '6379'
+CELERY_BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+CELERY_BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'

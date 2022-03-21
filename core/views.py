@@ -1,3 +1,5 @@
+import datetime
+
 from django.dispatch import Signal
 from rest_framework import generics, viewsets, permissions, status, authentication
 from rest_framework.response import Response
@@ -50,9 +52,10 @@ class SelectedCategoryCompanies(APIView):
     """
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
-    def get(self, request, category, day=''):
-        category = category.title()
-        queryset = Company.objects.filter(category__name=category)
-        print(queryset)
+    def get(self, request, category, city, day=str(datetime.date.isoweekday(datetime.date.today())),
+            time=datetime.datetime.today().time()):
+        queryset = Company.objects.filter(category__name=category,
+                                          city=city.title(), work_time_end__hour__gt=time.hour,
+                                          work_days__icontains=str(day))
         serializer = CompanySerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

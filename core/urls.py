@@ -16,5 +16,5 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # refresh token
     path('company/', CompanyCreateAPIView.as_view()),
     path('company_list/', CompanyListAPIView.as_view()),
-    path('company_list/<str:category>', SelectedCategoryCompanies.as_view())
+    path('company_list/<str:category>/<str:city>', SelectedCategoryCompanies.as_view())
 ]
