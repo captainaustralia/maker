@@ -4,6 +4,7 @@ from .models import User
 
 
 def delete_inactive_user():
+    print('Starting')
     inactive_user = User.objects.filter(last_login__isnull=True, is_superuser=False, is_active=False,
                                         date_register__day__lt=datetime.date.day)
 
