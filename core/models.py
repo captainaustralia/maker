@@ -56,6 +56,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         editable=True,
         unique=True
     )
+    date_register = models.DateTimeField(default='2021-12-12 23:59:59.880291')
 
     is_active = models.BooleanField(default=False)
 
@@ -158,7 +159,7 @@ class Company(models.Model):
     )
 
     start_date = models.DateTimeField(
-        default=str(now())
+        auto_now_add=True
     )
 
     end_date = models.DateTimeField(
