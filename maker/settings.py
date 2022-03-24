@@ -29,9 +29,13 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework_simplejwt',
     'djoser',
-    'django_celery_beat'
+    'django_celery_beat',
     # 'loadtest'
 
+    # SOCIAL OAUTH
+    'oauth2_provider',
+    'social_django',
+    'rest_framework_social_oauth2',
 ]
 
 # This is counter-intuitive, but correct: ``UpdateCacheMiddleware`` needs to run
@@ -64,6 +68,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -104,6 +110,37 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+]
+
+AUTHENTICATION_BACKENDS = (
+    # FACEBOOK
+    'social_core.backends.facebook.FacebookAppOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
+    # GOOGLE
+    'social_core.backends.google.GoogleOAuth2',
+    # DRF
+    'rest_framework_social_oauth2.backends.DjangoOAuth2',
+    # DJANGO
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+# Facebook configuration
+SOCIAL_AUTH_FACEBOOK_KEY = '<your app id goes here>'
+SOCIAL_AUTH_FACEBOOK_SECRET = '<your app secret goes here>'
+
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+    'fields': 'id, name, email'
+}
+
+# GOOGLE configuration
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '<your app id goes here>'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '<your app secret goes here>'
+
+# GOOGLE
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile',
 ]
 
 LANGUAGE_CODE = 'en-us'
@@ -168,7 +205,13 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        'rest_framework_social_oauth2.authentication.SocialAuthentication',
+
+    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ]
 }
 
 #  DJOSER SETTINGS
