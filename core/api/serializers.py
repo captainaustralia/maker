@@ -5,7 +5,6 @@ from ..models import User, Company
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = ['id', 'email', 'password', 'phone', 'first_name', 'last_name', 'country', 'city', 'about',
@@ -14,8 +13,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CompanySerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Company
         fields = '__all__'
-

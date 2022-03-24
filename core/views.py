@@ -4,6 +4,8 @@ from django.dispatch import Signal
 from rest_framework import generics, viewsets, permissions, status, authentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from core.api.permissions import IsOwnerOrReadOnly
 from core.api.serializers import UserSerializer, CompanySerializer
 from core.models import User, Company
 
@@ -44,6 +46,14 @@ class CompanyCreateAPIView(APIView):
             create_company.send(sender=self.__class__, id=request.user.username)
             return Response(serializer.data, status=status.HTTP_201_CREATED)  # send 201
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # send 400
+
+
+class CompanyUpdateAPIView(APIView):
+    permission_classes = (IsOwnerOrReadOnly,)
+
+    def update(self, request):
+        company = Company.objects.get(user_id=request.user.id)
+        data = request.data
 
 
 class SelectedCategoryCompanies(APIView):
