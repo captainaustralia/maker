@@ -20,4 +20,5 @@ now it's char fields.(Done !)
 19.03.22-22.03.22(San)
 - Add Redis/Celery config/Fix models/other small fixes..
 ----
-- Add permission/oauth2/repair views(San)
+22.03.22-25.03.22(San)
+- Add permission/oauth2/repair views
