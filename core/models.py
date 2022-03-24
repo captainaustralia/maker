@@ -7,7 +7,7 @@ from django.utils.timezone import now
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password, username, is_staff=False, is_admin=False, is_active=False,
+    def create_user(self, email, password, username='', is_staff=False, is_admin=False, is_active=False,
                     is_company=False):
         user_obj = self.model(
             email=self.normalize_email(email)
@@ -54,7 +54,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(
         max_length=255,
         editable=True,
-        unique=True
+        unique=True,
+        blank=True
     )
     date_register = models.DateTimeField(default='2021-12-12 23:59:59.880291')
 
@@ -69,7 +70,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ['username']
 
     class Meta:
         verbose_name = "User"
