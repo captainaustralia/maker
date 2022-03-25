@@ -7,7 +7,7 @@ from django.utils.timezone import now
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password, username='', is_staff=False, is_admin=False, is_active=False,
+    def create_user(self, email, password=None, username='', is_staff=False, is_admin=False, is_active=False,
                     is_company=False):
         user_obj = self.model(
             email=self.normalize_email(email)

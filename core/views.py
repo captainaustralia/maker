@@ -1,6 +1,7 @@
 import datetime
 
 from django.dispatch import Signal
+from django.shortcuts import render
 from rest_framework import generics, viewsets, permissions, status, authentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -69,3 +70,7 @@ class SelectedCategoryCompanies(APIView):
                                           work_days__icontains=str(day))
         serializer = CompanySerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+def test(request):
+    return render(request, 'login.html')
