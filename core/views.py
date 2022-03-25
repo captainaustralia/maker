@@ -1,6 +1,7 @@
 import datetime
 
 from django.dispatch import Signal
+from django.shortcuts import render
 from rest_framework import generics, viewsets, permissions, status, authentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -22,7 +23,7 @@ class UserViewSet(viewsets.ModelViewSet):
 class CompanyListAPIView(generics.ListAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class CompanyCreateAPIView(APIView):
@@ -51,10 +52,13 @@ class CompanyCreateAPIView(APIView):
 class CompanyUpdateAPIView(APIView):
     permission_classes = (IsOwnerOrReadOnly,)
 
-    def update(self, request):
+    def update(self, request,pk=1):
         company = Company.objects.get(user_id=request.user.id)
         data = request.data
-
+        a = {k: v for k, v in data if v != ''}
+        for key, value in a:
+            company.key = value
+        company.save()
 
 class SelectedCategoryCompanies(APIView):
     """
@@ -69,3 +73,7 @@ class SelectedCategoryCompanies(APIView):
                                           work_days__icontains=str(day))
         serializer = CompanySerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+def test(request):
+    return render(request, 'login.html')

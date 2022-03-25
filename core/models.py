@@ -7,12 +7,12 @@ from django.utils.timezone import now
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password, username='', is_staff=False, is_admin=False, is_active=False,
-                    is_company=False):
+    def create_user(self, email, password=None, is_staff=False, is_admin=False, is_active=False,
+                    is_company=False, **kwargs):
         user_obj = self.model(
             email=self.normalize_email(email)
         )
-        user_obj.username = username
+        user_obj.username = email
         user_obj.is_staff = is_staff
         user_obj.is_admin = is_admin
         user_obj.is_active = is_active
@@ -24,7 +24,6 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, password):
         user = self.create_user(
             email,
-            username='',
             password=password,
             is_staff=True,
             is_admin=True,
@@ -57,7 +56,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         unique=True,
         blank=True
     )
-    date_register = models.DateTimeField(default='2021-12-12 23:59:59.880291')
+    # date_register = models.DateTimeField(default='2021-12-12 23:59:59.880291')
 
     is_active = models.BooleanField(default=False)
 
@@ -163,7 +162,7 @@ class Company(models.Model):
     )
 
     end_date = models.DateTimeField(
-        default='2023-12-12 23:59:59'
+        blank=True
     )  # not sure about format
 
     country = models.CharField(

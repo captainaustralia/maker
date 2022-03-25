@@ -113,9 +113,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTHENTICATION_BACKENDS = (
-    # FACEBOOK
-    'social_core.backends.facebook.FacebookAppOAuth2',
-    'social_core.backends.facebook.FacebookOAuth2',
     # GOOGLE
     'social_core.backends.google.GoogleOAuth2',
     # DRF
@@ -123,26 +120,21 @@ AUTHENTICATION_BACKENDS = (
     # DJANGO
     'django.contrib.auth.backends.ModelBackend',
 )
-
-# Facebook configuration
-SOCIAL_AUTH_FACEBOOK_KEY = '<your app id goes here>'
-SOCIAL_AUTH_FACEBOOK_SECRET = '<your app secret goes here>'
-
-SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
-SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-    'fields': 'id, name, email'
-}
-
-# GOOGLE configuration
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '<your app id goes here>'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '<your app secret goes here>'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 # GOOGLE
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
     'https://www.googleapis.com/auth/userinfo.email',
     'https://www.googleapis.com/auth/userinfo.profile',
 ]
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = parametrs.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = parametrs.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET
 
+LOGIN_URL = '/complete/google-oauth2/'
+
+
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Europe/London'
