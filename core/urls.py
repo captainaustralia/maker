@@ -15,8 +15,8 @@ urlpatterns = [
     path('', include(router.urls)),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # get token
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # refresh token
-    path('company/', CompanyCreateAPIView.as_view()),
-    path('company_list/', CompanyListAPIView.as_view()),
-    path('company_list/<str:category>/<str:city>', SelectedCategoryCompanies.as_view()),
-    path('company_update/', CompanyUpdateAPIView.as_view())
+    path('company/', CompanyCreateAPIView.as_view()),  # create company
+    path('company_list/', CompanyListAPIView.as_view()),  # list companies
+    path('company_list/<str:category>/<str:city>', SelectedCategoryCompanies.as_view()),  # current city/category comp
+    path('company_update/<int:pk>', CompanyUpdateAPIView.as_view()),  # RUD comp (Profile)
 ]
