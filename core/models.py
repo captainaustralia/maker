@@ -31,17 +31,6 @@ class UserManager(BaseUserManager):
         )
         return user
 
-    # def create_company(self, email, password, phone='', country='', city=''):
-    #     company = self.create_user(
-    #         email,
-    #         password=password,
-    #         phone=phone,
-    #         country=country,
-    #         city=city,
-    #         is_company=True
-    #     )
-    #     return company
-
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(
@@ -90,19 +79,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         return True
 
 
-# class UserProfile(models.Model):
-#     user = models.OneToOneField(
-#         User,
-#         on_delete=models.PROTECT,
-#         null=True,
-#         default=''
-#     )
-#
-#     # about = models.TextField(
-#     #     max_length=200,
-#     #     blank=True
-#     # )
-
 class Category(models.Model):
     name = models.CharField(
         max_length=255
@@ -134,13 +110,13 @@ class Company(models.Model):
 
     category = models.ForeignKey(
         Category,
-        blank=True,
+        blank=False,
         null=True,
         related_name='category',
         on_delete=models.SET_NULL,
     )
     avatar = models.ImageField(
-        upload_to='media/user_avatar',
+        upload_to='media/user_avatar',  # Amazon storage in future
         blank=True
     )
     name = models.CharField(
@@ -154,7 +130,7 @@ class Company(models.Model):
     )
 
     phone = PhoneNumberField(
-        unique=True
+        blank=False
     )
 
     start_date = models.DateTimeField(
@@ -162,34 +138,38 @@ class Company(models.Model):
     )
 
     end_date = models.DateTimeField(
-        blank=True
-    )  # not sure about format
+        blank=False
+    )
 
     country = models.CharField(
-        max_length=255
+        max_length=255,
+        blank=False
     )
     city = models.CharField(
-        max_length=255
+        max_length=255,
+        blank=False
     )
     state = models.CharField(
-        max_length=255
+        max_length=255,
+        blank=False
     )
     street = models.CharField(
-        max_length=255
+        max_length=255,
+        blank=False
     )
 
     work_days = MultiSelectField(
-        blank=True,
+        blank=False,
         choices=WORK_DAYS,
         max_choices=7
     )
 
     work_time_start = models.TimeField(
-        auto_now_add=True
+        blank=False
     )
 
     work_time_end = models.TimeField(
-        blank=True
+        blank=False
     )
 
     website_url = models.URLField(
@@ -206,7 +186,7 @@ class Company(models.Model):
     )
 
     def __str__(self):
-        return self.user.username
+        return f'{self.name},{self.user.email}'
 
     class Meta:
         verbose_name = 'Company'

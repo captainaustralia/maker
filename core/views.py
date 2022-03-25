@@ -3,6 +3,7 @@ import datetime
 from django.dispatch import Signal
 from django.shortcuts import render
 from rest_framework import generics, viewsets, permissions, status, authentication
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -21,9 +22,21 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class CompanyListAPIView(generics.ListAPIView):
+    """
+    LIST COMPANIES
+    """
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
+class CompanyUpdateAPIView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    GET/UPDATE/DELETE
+    """
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+    permission_classes = (permissions.AllowAny,)
 
 
 class CompanyCreateAPIView(APIView):
@@ -48,17 +61,6 @@ class CompanyCreateAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)  # send 201
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # send 400
 
-
-class CompanyUpdateAPIView(APIView):
-    permission_classes = (IsOwnerOrReadOnly,)
-
-    def update(self, request,pk=1):
-        company = Company.objects.get(user_id=request.user.id)
-        data = request.data
-        a = {k: v for k, v in data if v != ''}
-        for key, value in a:
-            company.key = value
-        company.save()
 
 class SelectedCategoryCompanies(APIView):
     """
