@@ -18,7 +18,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class CompanyListAPIView(generics.ListAPIView):
@@ -36,7 +36,7 @@ class CompanyUpdateAPIView(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsOwnerOrReadOnly,)
 
 
 class CompanyCreateAPIView(APIView):
@@ -79,3 +79,4 @@ class SelectedCategoryCompanies(APIView):
 
 def test(request):
     return render(request, 'login.html')
+
