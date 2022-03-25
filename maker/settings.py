@@ -113,9 +113,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTHENTICATION_BACKENDS = (
-    # FACEBOOK
-    'social_core.backends.facebook.FacebookAppOAuth2',
-    'social_core.backends.facebook.FacebookOAuth2',
     # GOOGLE
     'social_core.backends.google.GoogleOAuth2',
     # DRF
@@ -125,16 +122,6 @@ AUTHENTICATION_BACKENDS = (
 )
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
-# Facebook configuration
-SOCIAL_AUTH_FACEBOOK_KEY = '<your app id goes here>'
-SOCIAL_AUTH_FACEBOOK_SECRET = '<your app secret goes here>'
-DCS_SESSION_COOKIE_SAMESITE = "None"
-SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
-SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-    'fields': 'id, name, email'
-}
-SESSION_COOKIE_SECURE = False
-# GOOGLE configuration
 
 # GOOGLE
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
@@ -146,8 +133,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = parametrs.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET
 
 LOGIN_URL = '/complete/google-oauth2/'
 
-LOGIN_REDIRECT_URL = '/api/'
-LOGOUT_REDIRECT_URL = '/'
+
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 LANGUAGE_CODE = 'en-us'
 

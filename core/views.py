@@ -23,7 +23,7 @@ class UserViewSet(viewsets.ModelViewSet):
 class CompanyListAPIView(generics.ListAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class CompanyCreateAPIView(APIView):
@@ -52,10 +52,13 @@ class CompanyCreateAPIView(APIView):
 class CompanyUpdateAPIView(APIView):
     permission_classes = (IsOwnerOrReadOnly,)
 
-    def update(self, request):
+    def update(self, request,pk=1):
         company = Company.objects.get(user_id=request.user.id)
         data = request.data
-
+        a = {k: v for k, v in data if v != ''}
+        for key, value in a:
+            company.key = value
+        company.save()
 
 class SelectedCategoryCompanies(APIView):
     """
