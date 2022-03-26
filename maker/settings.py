@@ -1,8 +1,10 @@
+import os
 from datetime import timedelta
 from pathlib import Path
 
 import django.middleware.cache
 
+import amazons3parametrs
 import parametrs
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,6 +23,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "django_extensions",
+
+    # STORE S3
+    'storages',
 
     # APPS
     'core',
@@ -116,12 +122,22 @@ DATABASES = {
 
 # CACHES REDIS
 if not DEBUG:
-    CACHES = {
-        'default': {
-            'BACKEND': 'django_redis.cache.RedisCache',
-            'LOCATION': 'redis://127.0.0.1:6379',
-        }
-    }
+    from cachesparametrs import *
+
+AWS_ACCESS_KEY_ID = amazons3parametrs.AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY = amazons3parametrs.AWS_SECRET_ACCESS_KEY
+AWS_STORAGE_BUCKET_NAME = amazons3parametrs.AWS_STORAGE_BUCKET_NAME
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+AWS_LOCATION = 'static'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, '/media'),
+]
+STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # Password validation
 
@@ -156,9 +172,9 @@ SESSION_COOKIE_SAMESITE = "None"
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = parametrs.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = parametrs.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
+LOGIN_URL = '/complete/google-oauth2/'
 SOCIAL_AUTH_FIELDS_STORED_IN_SESSION = ['state']
 SESSION_COOKIE_SECURE = False
-LOGIN_URL = '/complete/google-oauth2/'
 
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 LANGUAGE_CODE = 'en-us'
