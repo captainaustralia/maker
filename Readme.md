@@ -22,3 +22,6 @@ now it's char fields.(Done !)
 ----
 22.03.22-25.03.22(San)
 - Add permission/oauth2/repair views
+----
+26.03.22(San)
+- AWS S3 cloudstorage
