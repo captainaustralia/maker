@@ -66,7 +66,7 @@ class SelectedCategoryCompanies(APIView):
     """
     Selected Category Companies
     """
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, category, city, day=str(datetime.date.isoweekday(datetime.date.today())),
             time=datetime.datetime.today().time()):

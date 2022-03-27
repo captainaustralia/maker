@@ -3,7 +3,6 @@ from django.contrib.auth.models import PermissionsMixin, AbstractUser
 from django.db import models
 from multiselectfield import MultiSelectField
 from phonenumber_field.modelfields import PhoneNumberField
-from django.utils.timezone import now
 
 
 class UserManager(BaseUserManager):
@@ -115,14 +114,16 @@ class Company(models.Model):
         related_name='category',
         on_delete=models.SET_NULL,
     )
-    avatar = models.ImageField(
-        upload_to='media/user_avatar',  # Amazon storage in future
-        blank=True
-    )
+
     name = models.CharField(
         max_length=255,
         editable=True,
         unique=True
+    )
+    avatar = models.ImageField(
+        upload_to=f'media/user_avatar/{name}/',  # Amazon storage in future - Done!
+        default='media/user_avatar/default.png',
+        blank=True,
     )
 
     description = models.CharField(
@@ -191,3 +192,16 @@ class Company(models.Model):
     class Meta:
         verbose_name = 'Company'
         verbose_name_plural = 'Companies'
+
+
+class MediaStorage(models.Model):
+    company = models.OneToOneField(Company, on_delete=models.CASCADE)
+    link = models.FileField()
+    date = models.DateTimeField(auto_now_add=True)
+
+
+class UserStorage(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    company = models.OneToOneField(Company, on_delete=models.CASCADE)
+    link = models.FileField()
+    date = models.DateTimeField(auto_now_add=True)
