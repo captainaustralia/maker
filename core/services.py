@@ -1,4 +1,5 @@
 import datetime
+import os
 
 from .models import User
 
@@ -17,3 +18,5 @@ def delete_inactive_user():
             return 0
         else:
             inactive_user.delete()
+
+

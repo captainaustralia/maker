@@ -44,7 +44,7 @@ class CompanyCreateAPIView(APIView):
     Companies Create API
     """
 
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsOwnerOrReadOnly,)
 
     # If someone wants to bypass the interface to someone else's user ID, he will not be able to create a company
     # + he must be auth... Need more test's

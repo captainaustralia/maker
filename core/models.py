@@ -1,9 +1,13 @@
+import os
+
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, AbstractUser
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from multiselectfield import MultiSelectField
 from phonenumber_field.modelfields import PhoneNumberField
 
+from core.funcs import get_file_path
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, is_staff=False, is_admin=False, is_active=False,
@@ -194,14 +198,39 @@ class Company(models.Model):
         verbose_name_plural = 'Companies'
 
 
-class MediaStorage(models.Model):
-    company = models.OneToOneField(Company, on_delete=models.CASCADE)
-    link = models.FileField()
-    date = models.DateTimeField(auto_now_add=True)
+class MediaCompanyStorage(models.Model):
+    company = models.ManyToManyField(
+        Company,
+        related_name='media_storage_company',
+    )
+    link = models.FileField(
+        upload_to=get_file_path,
+        validators=[FileExtensionValidator(allowed_extensions=['mp4', 'jpg', 'jpeg', 'png'])]
+    )
+    date = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return f'Company:{self.company.name} Date: {self.date.date()}'
 
 
-class UserStorage(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    company = models.OneToOneField(Company, on_delete=models.CASCADE)
-    link = models.FileField()
-    date = models.DateTimeField(auto_now_add=True)
+class MediaUserStorage(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT
+    )
+    company = models.ForeignKey(
+        Company,
+        on_delete=models.PROTECT
+    )
+    link = models.FileField(
+        upload_to=get_file_path,
+        validators=[FileExtensionValidator(allowed_extensions=['mp4', 'jpg', 'jpeg', 'png'])]
+    )
+    date = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return f'Name:{self.user.username} - Date:{self.date.date()} '
