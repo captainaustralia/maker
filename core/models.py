@@ -1,20 +1,21 @@
+import os
+
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, AbstractUser
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from multiselectfield import MultiSelectField
 from phonenumber_field.modelfields import PhoneNumberField
-from django.utils.timezone import now
 
+from core.funcs import get_file_path
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, phone, country, city, password, is_staff=False, is_admin=False, is_active=False,
-                    is_company=False):
+    def create_user(self, email, password=None, is_staff=False, is_admin=False, is_active=False,
+                    is_company=False, **kwargs):
         user_obj = self.model(
             email=self.normalize_email(email)
         )
-        user_obj.phone = phone
-        user_obj.country = country
-        user_obj.city = city
+        user_obj.username = email
         user_obj.is_staff = is_staff
         user_obj.is_admin = is_admin
         user_obj.is_active = is_active
@@ -23,29 +24,15 @@ class UserManager(BaseUserManager):
         user_obj.save(using=self._db)
         return user_obj
 
-    def create_superuser(self, email, password, phone='', country='', city=''):
+    def create_superuser(self, email, password):
         user = self.create_user(
             email,
             password=password,
-            phone=phone,
-            country=country,
-            city=city,
             is_staff=True,
             is_admin=True,
             is_active=True,
         )
         return user
-
-    # def create_company(self, email, password, phone='', country='', city=''):
-    #     company = self.create_user(
-    #         email,
-    #         password=password,
-    #         phone=phone,
-    #         country=country,
-    #         city=city,
-    #         is_company=True
-    #     )
-    #     return company
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -58,8 +45,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(
         max_length=255,
         editable=True,
-        unique=True
+        unique=True,
+        blank=True
     )
+    # date_register = models.DateTimeField(default='2021-12-12 23:59:59.880291')
 
     is_active = models.BooleanField(default=False)
 
@@ -72,7 +61,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ['phone', 'country', 'city']
 
     class Meta:
         verbose_name = "User"
@@ -94,98 +82,155 @@ class User(AbstractBaseUser, PermissionsMixin):
         return True
 
 
-# class UserProfile(models.Model):
-#     user = models.OneToOneField(
-#         User,
-#         on_delete=models.PROTECT,
-#         null=True,
-#         default=''
-#     )
-#
-#     # about = models.TextField(
-#     #     max_length=200,
-#     #     blank=True
-#     # )
+class Category(models.Model):
+    name = models.CharField(
+        max_length=255
+    )
+
+    class Meta:
+        verbose_name = 'Category'
+        verbose_name_plural = 'Categories'
+
+    def __str__(self):
+        return self.name
 
 
 class Company(models.Model):
+    WORK_DAYS = [
+        ('1', 'Sunday'),
+        ('2', 'Monday'),
+        ('3', 'Tuesday'),
+        ('4', 'Wednesday'),
+        ('5', 'Thursday'),
+        ('6', 'Friday'),
+        ('7', 'Saturday'),
+    ]
+
     user = models.OneToOneField(
         User,
         on_delete=models.PROTECT
     )
-    avatar = models.ImageField(
-        upload_to='media/user_avatar'
+
+    category = models.ForeignKey(
+        Category,
+        blank=False,
+        null=True,
+        related_name='category',
+        on_delete=models.SET_NULL,
     )
+
     name = models.CharField(
         max_length=255,
         editable=True,
         unique=True
+    )
+    avatar = models.ImageField(
+        upload_to=f'media/user_avatar/{name}/',  # Amazon storage in future - Done!
+        default='media/user_avatar/default.png',
+        blank=True,
     )
 
     description = models.CharField(
         max_length=1155
     )
 
-    phone = PhoneNumberField()
-    start_date = models.DateTimeField(default=now())
-    end_date = models.DateTimeField()  # not sure about format
+    phone = PhoneNumberField(
+        blank=False
+    )
+
+    start_date = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    end_date = models.DateTimeField(
+        blank=False
+    )
 
     country = models.CharField(
-        max_length=255
+        max_length=255,
+        blank=False
     )
     city = models.CharField(
-        max_length=255
+        max_length=255,
+        blank=False
     )
     state = models.CharField(
-        max_length=255
+        max_length=255,
+        blank=False
     )
     street = models.CharField(
-        max_length=255
+        max_length=255,
+        blank=False
     )
-    WORK_DAYS = [
-        ('Sun', 'Sunday'),
-        ('Mon', 'Monday'),
-        ('Tue', 'Tuesday'),
-        ('Wed', 'Wednesday'),
-        ('Thu', 'Thursday'),
-        ('Fri', 'Friday'),
-        ('Sat', 'Saturday'),
-    ]
+
     work_days = MultiSelectField(
         blank=False,
         choices=WORK_DAYS,
         max_choices=7
     )
+
     work_time_start = models.TimeField(
         blank=False
     )
+
     work_time_end = models.TimeField(
         blank=False
     )
-    company_rating = models.DecimalField(
-        max_digits=2,
-        decimal_places=1
-    )
+
     website_url = models.URLField(
-        max_length=255
+        max_length=255,
+        blank=True
     )
 
-    likes = models.IntegerField()
-    dislikes = models.IntegerField()
+    likes = models.IntegerField(
+        default=0
+    )
+
+    dislikes = models.IntegerField(
+        default=0
+    )
 
     def __str__(self):
-        return self.user.name
-
-    def save(self, *args, **kwargs):
-        self.objects.create_user(*args, **kwargs)
+        return f'{self.name},{self.user.email}'
 
     class Meta:
         verbose_name = 'Company'
         verbose_name_plural = 'Companies'
 
 
-class Category(models.Model):
-    name = models.CharField(
-        max_length=255
+class MediaCompanyStorage(models.Model):
+    company = models.ManyToManyField(
+        Company,
+        related_name='media_storage_company',
+    )
+    link = models.FileField(
+        upload_to=get_file_path,
+        validators=[FileExtensionValidator(allowed_extensions=['mp4', 'jpg', 'jpeg', 'png'])]
+    )
+    date = models.DateTimeField(
+        auto_now_add=True
     )
 
+    def __str__(self):
+        return f'Company:{self.company.name} Date: {self.date.date()}'
+
+
+class MediaUserStorage(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT
+    )
+    company = models.ForeignKey(
+        Company,
+        on_delete=models.PROTECT
+    )
+    link = models.FileField(
+        upload_to=get_file_path,
+        validators=[FileExtensionValidator(allowed_extensions=['mp4', 'jpg', 'jpeg', 'png'])]
+    )
+    date = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return f'Name:{self.user.username} - Date:{self.date.date()} '

@@ -11,5 +11,17 @@ now it's char fields.(Done !)
 16.03.22(Sergo)
 - Create Company model
 ----
-17.3.22(San)
+17.03.22(San)
 - Write normal models for AbstractUser + UserProfile/CompanyProfile
+----
+18.03.22(San)
+- Fix BaseModels, add SMTP , write Serializers for create Company, other fix
+----
+19.03.22-22.03.22(San)
+- Add Redis/Celery config/Fix models/other small fixes..
+----
+22.03.22-25.03.22(San)
+- Add permission/oauth2/repair views
+----
+26.03.22(San)
+- AWS S3 cloudstorage
