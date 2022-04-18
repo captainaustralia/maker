@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 
-# *** if user field is_active = False , we can't take token
+#if user field is_active = False , we can't take token
 from core.views import test
 
 urlpatterns = [
